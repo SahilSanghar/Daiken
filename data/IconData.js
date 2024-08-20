@@ -1,6 +1,3 @@
-// data.js
-import { FaBeer, FaCoffee, FaApple } from 'react-icons/fa';
-
 export const iconData = [
 {
     icon: '/i1.png',

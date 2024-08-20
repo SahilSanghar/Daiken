@@ -1,9 +1,11 @@
-import React from 'react'
+import BackBar from "@/BackBar";
+import ProductCard from "@/ProductCard";
 
-const Page = () => {
-return (
-    <div>Page</div>
-)
+export default function Page() {
+    return (
+    <h1>
+        <BackBar />
+        <ProductCard />
+    </h1>
+    )
 }
-
-export default Page

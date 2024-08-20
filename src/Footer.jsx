@@ -11,7 +11,7 @@ const Footer = () => {
     }
 
     return (
-        <div className="flex flex-row justify-between gap-2 py-5">
+        <div className="flex flex-row justify-between bg-sky-600 text-white gap-2 py-5">
             <div
                 className="flex flex-col items-center cursor-pointer"
                 onClick={() => handleNavigation('/')}
