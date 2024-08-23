@@ -11,7 +11,7 @@ return (
         <p className='py-5'>
             The mission of Daikin is to develop and sell high-quality industrial AC products through a continuous research process, adhering to company policies that ensure the well-being of our employees, protect the environment, and pursue economic profitability. Our vision is to be a globally recognized leader in the production, innovation, and export of sustainable industrial AC solutions. We aim to be a business unit that prioritizes human development and financial integration, meeting the highest standards of quality and innovation to satisfy our customers, employees, workers, and communities.
         </p>
-        <Image src='/c1.png' alt='image' height={20} width={500} className='' />
+        <Image src='/c1.png' alt='image' height={20} width={500} />
         <p className='py-5'>
             Respect everyone, their culture, and their habitat; value individual differences and potential to ensure fair and equitable growth for employees, partners, communities, and customers.
         </p>
