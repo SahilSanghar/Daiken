@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -9,15 +9,10 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [invitationCode, setInvitationCode] = useState('');
-    const [verificationCode, setVerificationCode] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleLoginClick = () => {
         router.push('/login');
-    };
-
-    const handleSendCodeClick = () => {
-        // Implement verification code sending logic here
-        alert('Verification code sent!');
     };
 
     const handleSubmit = async (e) => {
@@ -28,8 +23,10 @@ const Register = () => {
             return;
         }
 
+        setLoading(true);
+
         try {
-            const response = await fetch('/api/register', {
+            const response = await fetch('/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -37,21 +34,27 @@ const Register = () => {
                 body: JSON.stringify({
                     mobileNumber,
                     password,
-                    invitationCode,
-                    verificationCode,
+                    invitationCode: invitationCode || null, // Send null if no code is provided
                 }),
             });
 
+            // Check if the response is JSON
+            const contentType = response.headers.get('Content-Type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+            }
+            
             if (response.ok) {
                 alert('Registration successful!');
                 router.push('/login');
             } else {
-                const data = await response.json();
-                alert(`Error: ${data.error}`);
+                alert(`Error: ${data.error || 'Registration failed'}`);
             }
         } catch (error) {
-            console.error('An error occurred:', error);
-            alert('An error occurred during registration.');
+            console.error('Error during registration:', error);
+            alert('Failed to register. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -105,7 +108,7 @@ const Register = () => {
                     <div className="mb-4">
                         <label className="flex">
                             <Image src='/inv.svg' alt='invitation code' width={20} height={20} className='mr-2' />
-                            Invitation Code
+                            Invitation Code (Optional)
                         </label>
                         <input
                             type="text"
@@ -115,34 +118,12 @@ const Register = () => {
                             className="w-full text-black px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
-                    <div className="mb-6">
-                        <label className="flex">
-                            <Image src='/ver.svg' alt='verification code' width={20} height={20} className='mr-2' />
-                            Verification Code
-                        </label>
-                        <div className="flex items-center">
-                            <input
-                                type="text"
-                                value={verificationCode}
-                                onChange={(e) => setVerificationCode(e.target.value)}
-                                placeholder="Enter verification code"
-                                className="flex-grow text-black px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                required
-                            />
-                            <button
-                                type="button"
-                                onClick={handleSendCodeClick}
-                                className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200"
-                            >
-                                Send
-                            </button>
-                        </div>
-                    </div>
                     <button
                         type="submit"
                         className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                        disabled={loading}
                     >
-                        Sign Up
+                        {loading ? 'Signing Up...' : 'Sign Up'}
                     </button>
                 </form>
                 <div className="mt-4 text-center">

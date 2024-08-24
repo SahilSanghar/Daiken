@@ -26,7 +26,7 @@ return (
             <input
                 type="text"
                 placeholder="Enter your account number"
-                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 text-black focus:ring-blue-500"
             />
         </div>
         <div className="mb-6">
@@ -36,7 +36,7 @@ return (
             <input
                 type="password"
                 placeholder="Enter your password"
-                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 text-black focus:ring-blue-500"
             />
         </div>
         <button
