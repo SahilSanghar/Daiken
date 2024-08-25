@@ -10,6 +10,7 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [invitationCode, setInvitationCode] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const handleLoginClick = () => {
         router.push('/login');
@@ -24,9 +25,10 @@ const Register = () => {
         }
 
         setLoading(true);
+        setError(null);
 
         try {
-            const response = await fetch('/register', {
+            const response = await fetch('/register', { // Updated endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -34,25 +36,21 @@ const Register = () => {
                 body: JSON.stringify({
                     mobileNumber,
                     password,
-                    invitationCode: invitationCode || null, // Send null if no code is provided
+                    invitationCode: invitationCode || null,
                 }),
             });
 
-            // Check if the response is JSON
-            const contentType = response.headers.get('Content-Type');
-            if (contentType && contentType.includes('application/json')) {
-                const data = await response.json();
-            }
-            
+            const data = await response.json();
+
             if (response.ok) {
                 alert('Registration successful!');
                 router.push('/login');
             } else {
-                alert(`Error: ${data.error || 'Registration failed'}`);
+                setError(data.error || 'Registration failed');
             }
         } catch (error) {
             console.error('Error during registration:', error);
-            alert('Failed to register. Please try again.');
+            setError('Failed to register. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -118,6 +116,7 @@ const Register = () => {
                             className="w-full text-black px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
+                    {error && <p className="text-red-500 mb-4">{error}</p>}
                     <button
                         type="submit"
                         className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"

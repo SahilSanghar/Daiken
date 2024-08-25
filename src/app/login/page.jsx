@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
 import Image from 'next/image';
 
@@ -8,6 +8,17 @@ const Login = () => {
     const [accountNumber, setAccountNumber] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            const response = await fetch('/login'); // Ensure this API route is implemented
+            if (response.ok) {
+                router.push('/account'); // Redirect to account if logged in
+            }
+        };
+        checkAuthStatus();
+    }, [router]);
 
     const handleRegisterClick = () => {
         router.push('/register');
@@ -20,31 +31,33 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+        setError(null);
 
         try {
-            const response = await fetch('/login', {
+            const response = await fetch('/api/login', { // Updated endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ accountNumber, password }),
             });
-            
+
             // Check if the response is JSON
             const contentType = response.headers.get('Content-Type');
+            let data;
             if (contentType && contentType.includes('application/json')) {
-                const data = await response.json();
+                data = await response.json();
             }
 
             if (response.ok) {
                 alert('Login successful!');
                 router.push('/account');
             } else {
-                alert(`Error: ${data.error || 'Login failed'}`);
+                setError(data.error || 'Login failed');
             }
         } catch (error) {
             console.error('Error during login:', error);
-            alert('Failed to log in. Please try again.');
+            setError('Failed to log in. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -83,6 +96,7 @@ const Login = () => {
                             required
                         />
                     </div>
+                    {error && <p className="text-red-500 mb-4">{error}</p>}
                     <button
                         type="submit"
                         className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"

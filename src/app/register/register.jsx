@@ -1,50 +1,43 @@
-import { getAuth } from 'firebase-admin/auth';
-import { ref, set, get } from 'firebase-admin/database'; // Import Realtime Database functions
-import { database } from '../../../data/firebaseadmin'; // Assuming you have initialized Realtime Database here
-import { v4 as uuidv4 } from 'uuid';
+import dbConnect from '../../lib/mongodb';
+import User from '../../model/user';
+import bcrypt from 'bcrypt';
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         const { mobileNumber, password, invitationCode } = req.body;
 
+        if (!mobileNumber || !password) {
+            return res.status(400).json({ error: 'Mobile number and password are required' });
+        }
+
         try {
-            const auth = getAuth();
+            await dbConnect();
 
-            // Check if an invitation code is provided
-            let generatedInvitationCode = uuidv4(); // Generate a unique code for the user
-
-            if (invitationCode) {
-                // Validate the invitation code in Realtime Database
-                const codeRef = ref(database, `invitationCodes/${invitationCode}`);
-                const codeSnapshot = await get(codeRef);
-
-                if (!codeSnapshot.exists()) {
-                    return res.status(400).json({ error: 'Invalid invitation code' });
-                }
+            // Check if user already exists
+            const existingUser = await User.findOne({ mobileNumber });
+            if (existingUser) {
+                return res.status(400).json({ error: 'User already exists' });
             }
 
-            // Store the user data in Realtime Database
-            const userRef = ref(database, `users/${mobileNumber}`);
-            await set(userRef, {
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            // Create a new user
+            const newUser = new User({
                 mobileNumber,
-                password, // Ideally, you'd hash the password before storing it
-                invitationCode: invitationCode || generatedInvitationCode,
-                createdAt: new Date().toISOString(),
+                password: hashedPassword,
+                invitationCode: invitationCode || null,
             });
 
-            // Store the generated invitation code for the user in Realtime Database
-            const invitationRef = ref(database, `invitationCodes/${generatedInvitationCode}`);
-            await set(invitationRef, {
-                mobileNumber,
-                createdAt: new Date().toISOString(),
-            });
+            await newUser.save();
 
             res.status(201).json({ message: 'User registered successfully' });
         } catch (error) {
-            console.error('Registration error:', error);
-            res.status(400).json({ error: error.message });
+            console.error(error);
+            res.status(500).json({ error: 'Internal server error' });
         }
     } else {
-        res.status(405).json({ message: 'Method not allowed' });
+        res.setHeader('Allow', ['POST']);
+        res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 }
